@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-//use Intervention\Image\Facades\Image;
+use Intervention\Image\Facades\Image;
 use App\Post;
 use DB;
 
@@ -184,26 +184,29 @@ class PostsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
-        $post = Post::find($id);
-        
-        //Check if post exists before deleting
-        if (!isset($post)){
+    public function destroy($id) {
+        //Method to destroy a given post
+        $post= Post::find($id);
+
+
+          //Check if post exists before deleting
+          if (!isset($post)){
             return redirect('/posts')->with('error', 'No Post Found');
         }
 
-        // Check for correct user
-        if(auth()->user()->id !==$post->user_id){
-            return redirect('/posts')->with('error', 'Unauthorized Page');
-        }
+        //Check for correct user/post owner
+        if(auth()-> user()-> id !==$post->user_id){
+            return redirect('/posts')-> with('error', 'Unauthorized Page');
 
-        if($post->cover_image != 'noimage.jpg'){
-            // Delete Image
+        }
+        if($post->cover_image!== 'noimage.jpg'){
+
+            //Delete the image
             Storage::delete('public/cover_images/'.$post->cover_image);
         }
+            
         
-        $post->delete();
-        return redirect('/posts')->with('success', 'Post Removed');
+        $post ->delete();
+        return redirect('/posts') -> with('success', 'Post Deleted Successfully');
     }
 }
