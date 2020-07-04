@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
+//use Intervention\Image\Facades\Image;
 use App\Post;
 use DB;
 
@@ -160,12 +160,12 @@ class PostsController extends Controller
             Storage::delete('public/cover_images/'.$post->cover_image);
 		
 	   //Make thumbnails
-	    $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
-            $thumb = Image::make($request->file('cover_image')->getRealPath());
-            $thumb->resize(80, 80);
-            $thumb->save('storage/cover_images/'.$thumbStore);
+	    // $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
+        //     $thumb = Image::make($request->file('cover_image')->getRealPath());
+        //     $thumb->resize(80, 80);
+        //     $thumb->save('storage/cover_images/'.$thumbStore);
 		
-        }
+        // }
 
         // Update Post
         $post->title = $request->input('title');
