@@ -1,0 +1,1 @@
+{{-- Partials contain partial files such as header and footer that will be used by the layout file. --}}
