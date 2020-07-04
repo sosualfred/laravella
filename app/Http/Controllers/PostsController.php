@@ -87,13 +87,13 @@ class PostsController extends Controller
             // Filename to store
             $fileNameToStore= $filename.'_'.time().'.'.$extension;
             // Upload Image
-            $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+            $path = $request->file('cover_image')->storeAs('public/storage/cover_images', $fileNameToStore);
 		
-	    // make thumbnails
-	    // $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
-        //     $thumb = Image::make($request->file('cover_image')->getRealPath());
-        //     $thumb->resize(80, 80);
-        //     $thumb->save('storage/cover_images/'.$thumbStore);
+	    //To make thumbnails
+	    $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
+            $thumb = Image::make($request->file('cover_image')->getRealPath());
+            $thumb->resize(80, 80);
+            $thumb->save('storage/cover_images/'.$thumbStore);
 		
         } else {
             //If the user never chooses any file
