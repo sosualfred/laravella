@@ -96,8 +96,8 @@ class PostsController extends Controller
         //     $thumb->save('storage/cover_images/'.$thumbStore);
 		
         } else {
-            //If the user never chose any file
-            $fileNameToStore = 'noimage.jpg';
+            //If the user never chooses any file
+            $fileNameToStore = 'noImage.jpg';
         }
 
         // Create Post
