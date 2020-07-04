@@ -160,12 +160,12 @@ class PostsController extends Controller
             Storage::delete('public/cover_images/'.$post->cover_image);
 		
 	   //Make thumbnails
-	    // $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
-        //     $thumb = Image::make($request->file('cover_image')->getRealPath());
-        //     $thumb->resize(80, 80);
-        //     $thumb->save('storage/cover_images/'.$thumbStore);
+	    $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
+            $thumb = Image::make($request->file('cover_image')->getRealPath());
+            $thumb->resize(80, 80);
+            $thumb->save('storage/cover_images/'.$thumbStore);
 		
-        // }
+        }
 
         // Update Post
         $post->title = $request->input('title');
