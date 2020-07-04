@@ -1,25 +1,28 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+
+// this fetches the model with its namespace 'App' using Eloquent
 use App\Post;
+
+//You could also use normal Sql to get these posts
 use DB;
 
 class PostsController extends Controller
 {
-    /**
+      /**
      * Create a new controller instance.
      *
-     * @return void
+     * @return voidboard
      */
     public function __construct()
     {
+        //Authorization needed for all pages except, index and posts
         $this->middleware('auth', ['except' => ['index', 'show']]);
     }
-
     /**
      * Display a listing of the resource.
      *
@@ -27,15 +30,24 @@ class PostsController extends Controller
      */
     public function index()
     {
-        //$posts = Post::all();
-        //return Post::where('title', 'Post Two')->get();
-        //$posts = DB::select('SELECT * FROM posts');
-        //$posts = Post::orderBy('title','desc')->take(1)->get();
-        //$posts = Post::orderBy('title','desc')->get();
+        //this returns all the data in our model in a json format
+        // $posts = Post::all();
 
-        $posts = Post::orderBy('created_at','desc')->paginate(10);
-        return view('posts.index')->with('posts', $posts);
-    }
+        //Use clause to get a certain post by a certain criteria
+        // return Post::where('title', 'Post Two') -> get();
+
+
+        //Using normal SQL QUERIES
+        // $posts = DB::select('SELECT * FROM posts');
+
+        //The most recent post will be the first
+        //$posts = Post::orderBy('title', 'desc') ->get();
+
+        //  $posts = Post::orderBy('title', 'desc')->take(1)->get();
+
+        $posts = Post::orderBy('created_at', 'desc')->paginate(5);
+            return view('posts.index') -> with('posts', $posts);
+        }
 
     /**
      * Show the form for creating a new resource.
@@ -44,6 +56,7 @@ class PostsController extends Controller
      */
     public function create()
     {
+        //Function to add data right from inside our application
         return view('posts.create');
     }
 
@@ -53,6 +66,7 @@ class PostsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
     public function store(Request $request)
     {
         $this->validate($request, [
@@ -63,24 +77,27 @@ class PostsController extends Controller
 
         // Handle File Upload
         if($request->hasFile('cover_image')){
+        //If an file was actually chosen
+
             // Get filename with the extension
             $filenameWithExt = $request->file('cover_image')->getClientOriginalName();
             // Get just filename
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            // Get just ext
+            // Get just extension
             $extension = $request->file('cover_image')->getClientOriginalExtension();
             // Filename to store
             $fileNameToStore= $filename.'_'.time().'.'.$extension;
             // Upload Image
             $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
 		
-	    // make thumbnails
+	    //To make thumbnails
 	    $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
             $thumb = Image::make($request->file('cover_image')->getRealPath());
             $thumb->resize(80, 80);
             $thumb->save('storage/cover_images/'.$thumbStore);
 		
         } else {
+            //If the user never chooses any file
             $fileNameToStore = 'noimage.jpg';
         }
 
@@ -94,7 +111,6 @@ class PostsController extends Controller
 
         return redirect('/posts')->with('success', 'Post Created');
     }
-
     /**
      * Display the specified resource.
      *
@@ -103,8 +119,8 @@ class PostsController extends Controller
      */
     public function show($id)
     {
-        $post = Post::find($id);
-        return view('posts.show')->with('post', $post);
+       $post = Post::find($id);
+       return view('posts.show') -> with('post', $post);
     }
 
     /**
@@ -115,19 +131,21 @@ class PostsController extends Controller
      */
     public function edit($id)
     {
-        $post = Post::find($id);
-        
-        //Check if post exists before deleting
-        if (!isset($post)){
-            return redirect('/posts')->with('error', 'No Post Found');
-        }
+        //
 
-        // Check for correct user
+        $post = Post::find($id);
+        //Check if post exists before deleting
+ if (!isset($post)){
+    return redirect('/posts')->with('error', 'No Post Found');
+}
+       
+        //Check for correct user
         if(auth()->user()->id !==$post->user_id){
             return redirect('/posts')->with('error', 'Unauthorized Page');
         }
+        return view('posts.edit')-> with('post', $post);
 
-        return view('posts.edit')->with('post', $post);
+       
     }
 
     /**
@@ -139,43 +157,52 @@ class PostsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
+        //
+         //File run when the post is updated
+         $this -> validate($request , [
             'title' => 'required',
             'body' => 'required'
         ]);
-		$post = Post::find($id);
+        //Find the particular post to update
+        $post = Post::find($id);
+
          // Handle File Upload
-        if($request->hasFile('cover_image')){
-            // Get filename with the extension
-            $filenameWithExt = $request->file('cover_image')->getClientOriginalName();
-            // Get just filename
-            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            // Get just ext
-            $extension = $request->file('cover_image')->getClientOriginalExtension();
-            // Filename to store
-            $fileNameToStore= $filename.'_'.time().'.'.$extension;
-            // Upload Image
-            $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+         if($request->hasFile('cover_image')){
+            //If an file was actually chosen
+    
+                // Get filename with the extension
+                $filenameWithExt = $request->file('cover_image')->getClientOriginalName();
+                // Get just filename
+                $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+                // Get just extension
+                $extension = $request->file('cover_image')->getClientOriginalExtension();
+                // Filename to store
+                $fileNameToStore= $filename.'_'.time().'.'.$extension;
+                // Upload Image
+                $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+            
             // Delete file if exists
             Storage::delete('public/cover_images/'.$post->cover_image);
-		
-	   //Make thumbnails
-	    // $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
-        //     $thumb = Image::make($request->file('cover_image')->getRealPath());
-        //     $thumb->resize(80, 80);
-        //     $thumb->save('storage/cover_images/'.$thumbStore);
-		
-        // }
 
-        // Update Post
-        $post->title = $request->input('title');
-        $post->body = $request->input('body');
+              //Make thumbnails
+	    $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
+        $thumb = Image::make($request->file('cover_image')->getRealPath());
+        $thumb->resize(80, 80);
+        $thumb->save('storage/cover_images/'.$thumbStore);
+    
+    }
+
+
+        //Update post
+        //$post = Post::find($id);
+        $post ->title = $request -> input('title');
+        $post ->body = $request -> input('body');
         if($request->hasFile('cover_image')){
             $post->cover_image = $fileNameToStore;
         }
-        $post->save();
+        $post ->save();
 
-        return redirect('/posts')->with('success', 'Post Updated');
+        return redirect('/posts') -> with('success', 'Post Updated');
     }
 
     /**
@@ -184,7 +211,8 @@ class PostsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
+    public function destroy($id)
+    {
         //Method to destroy a given post
         $post= Post::find($id);
 
