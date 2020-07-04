@@ -66,6 +66,50 @@ class PostsController extends Controller
      * @return \Illuminate\Http\Response
      */
 
+    // public function store(Request $request)
+    // {
+    //     $this->validate($request, [
+    //         'title' => 'required',
+    //         'body' => 'required',
+    //         'cover_image' => 'image|nullable|max:1999'
+    //     ]);
+
+    //     // Handle File Upload
+    //     if($request->hasFile('cover_image')){
+    //     //If an file was actually chosen
+
+    //         // Get filename with the extension
+    //         $filenameWithExt = $request->file('cover_image')->getClientOriginalName();
+    //         // Get just filename
+    //         $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+    //         // Get just extension
+    //         $extension = $request->file('cover_image')->getClientOriginalExtension();
+    //         // Filename to store
+    //         $fileNameToStore= $filename.'_'.time().'.'.$extension;
+    //         // Upload Image
+    //         $path = $request->file('cover_image')->storeAs('public/storage/cover_images', $fileNameToStore);
+		
+	//     //To make thumbnails
+	//     $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
+    //         $thumb = Image::make($request->file('cover_image')->getRealPath());
+    //         $thumb->resize(80, 80);
+    //         $thumb->save('storage/cover_images/'.$thumbStore);
+		
+    //     } else {
+    //         //If the user never chooses any file
+    //         $fileNameToStore = 'noImage.jpg';
+    //     }
+
+    //     // Create Post
+    //     $post = new Post;
+    //     $post->title = $request->input('title');
+    //     $post->body = $request->input('body');
+    //     $post->user_id = auth()->user()->id;
+    //     $post->cover_image = $fileNameToStore;
+    //     $post->save();
+
+    //     return redirect('/posts')->with('success', 'Post Created');
+    // }
     public function store(Request $request)
     {
         $this->validate($request, [
@@ -76,28 +120,25 @@ class PostsController extends Controller
 
         // Handle File Upload
         if($request->hasFile('cover_image')){
-        //If an file was actually chosen
-
             // Get filename with the extension
             $filenameWithExt = $request->file('cover_image')->getClientOriginalName();
             // Get just filename
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            // Get just extension
+            // Get just ext
             $extension = $request->file('cover_image')->getClientOriginalExtension();
             // Filename to store
             $fileNameToStore= $filename.'_'.time().'.'.$extension;
             // Upload Image
-            $path = $request->file('cover_image')->storeAs('public/storage/cover_images', $fileNameToStore);
+            $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
 		
-	    //To make thumbnails
+	    // make thumbnails
 	    $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
             $thumb = Image::make($request->file('cover_image')->getRealPath());
             $thumb->resize(80, 80);
             $thumb->save('storage/cover_images/'.$thumbStore);
 		
         } else {
-            //If the user never chooses any file
-            $fileNameToStore = 'noImage.jpg';
+            $fileNameToStore = 'noimage.jpg';
         }
 
         // Create Post
