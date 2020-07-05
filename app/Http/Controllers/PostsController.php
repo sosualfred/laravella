@@ -77,16 +77,38 @@ class PostsController extends Controller
             'cover_image' => 'image|nullable|max:1999'
         ]);
 
-        $cover_image = $request->cover_image;
-        $new_image_name = time().$cover_image->getClientOriginalName();
-        $cover_image->move('uploads/cover_images/', $new_image_name);
+        // Handle File Upload
+        if($request->hasFile('cover_image')){
+        //If an file was actually chosen
+
+            // Get filename with the extension
+            $filenameWithExt = $request->file('cover_image')->getClientOriginalName();
+            // Get just filename
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            // Get just extension
+            $extension = $request->file('cover_image')->getClientOriginalExtension();
+            // Filename to store
+            $fileNameToStore= $filename.'_'.time().'.'.$extension;
+            // Upload Image
+            $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+		
+	    // make thumbnails
+	    // $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
+        //     $thumb = Image::make($request->file('cover_image')->getRealPath());
+        //     $thumb->resize(80, 80);
+        //     $thumb->save('storage/cover_images/'.$thumbStore);
+		
+        } else {
+            //If the user never chose any file
+            $fileNameToStore = 'noimage.jpg';
+        }
 
         // Create Post
         $post = new Post;
         $post->title = $request->input('title');
         $post->body = $request->input('body');
         $post->user_id = auth()->user()->id;
-        $post->cover_image = 'uploads/cover_images/'.$new_image_name;
+        $post->cover_image = $fileNameToStore;
         $post->save();
 
         return redirect('/posts')->with('success', 'Post Created');
@@ -143,13 +165,12 @@ class PostsController extends Controller
             'title' => 'required',
             'body' => 'required'
         ]);
-        //Find the particular post to update
-        $post = Post::find($id);
+
 
          // Handle File Upload
          if($request->hasFile('cover_image')){
             //If an file was actually chosen
-
+    
                 // Get filename with the extension
                 $filenameWithExt = $request->file('cover_image')->getClientOriginalName();
                 // Get just filename
@@ -160,21 +181,17 @@ class PostsController extends Controller
                 $fileNameToStore= $filename.'_'.time().'.'.$extension;
                 // Upload Image
                 $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+            
+            // make thumbnails
+            // $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
+            //     $thumb = Image::make($request->file('cover_image')->getRealPath());
+            //     $thumb->resize(80, 80);
+            //     $thumb->save('storage/cover_images/'.$thumbStore);
+            
+            } 
 
-            // Delete file if exists
-            Storage::delete('public/cover_images/'.$post->cover_image);
-
-              //Make thumbnails
-	    $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
-        $thumb = Image::make($request->file('cover_image')->getRealPath());
-        $thumb->resize(80, 80);
-        $thumb->save('storage/cover_images/'.$thumbStore);
-
-    }
-
-
-        //Update post
-        //$post = Post::find($id);
+        //Find post to be updated
+        $post = Post::find($id);
         $post ->title = $request -> input('title');
         $post ->body = $request -> input('body');
         if($request->hasFile('cover_image')){
@@ -184,7 +201,6 @@ class PostsController extends Controller
 
         return redirect('/posts') -> with('success', 'Post Updated');
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -196,23 +212,17 @@ class PostsController extends Controller
         //Method to destroy a given post
         $post= Post::find($id);
 
-
-          //Check if post exists before deleting
-          if (!isset($post)){
-            return redirect('/posts')->with('error', 'No Post Found');
-        }
-
-        //Check for correct user/post owner
         if(auth()-> user()-> id !==$post->user_id){
             return redirect('/posts')-> with('error', 'Unauthorized Page');
 
         }
-        if($post->cover_image!== 'noimage.jpg'){
+        if($post->cover_image!== 'noImage.jpg'){
 
             //Delete the image
             Storage::delete('public/cover_images/'.$post->cover_image);
         }
-
+            
+        
         $post ->delete();
         return redirect('/posts') -> with('success', 'Post Deleted Successfully');
     }
