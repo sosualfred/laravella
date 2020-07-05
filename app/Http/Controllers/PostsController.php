@@ -89,7 +89,7 @@ class PostsController extends Controller
             // Filename to store
             $fileNameToStore= $fileName.'_'.time().'.'.$extension;
             // Upload Image
-            $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+            $request->file('cover_image')->move('public/cover_images', $fileNameToStore);
         } else {
             //No image chosen
             $fileNameToStore = 'noimage.jpg';
@@ -204,8 +204,8 @@ class PostsController extends Controller
             //Delete the image
             Storage::delete('public/cover_images/'.$post->cover_image);
         }
-            
-        
+
+
         $post ->delete();
         return redirect('/posts') -> with('success', 'Post Deleted Successfully');
     }
