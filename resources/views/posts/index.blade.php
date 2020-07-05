@@ -6,7 +6,7 @@
          <div class="well">
              <div class="row">
                  <div class="col-md-4 col-sm-4">
-                     <img src="{{ assets($post->cover_image) }}" alt="No image selected"  style ='width: 100%' >
+                     <img src="{{ asset($post->cover_image) }}" alt="No image selected"  style ='width: 100%' >
                  </div>
                  <div class="col-md-8 col-sm-8">
                     <h3><a href="/posts/{{$post->id}}">{{$post->title}}</a></h3>
