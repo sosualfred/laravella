@@ -2,7 +2,7 @@
 @section('content')
 <a href="/posts" class="btn btn-default">Go Back</a>
     <h1>{{$post->title}}</h1>
-    <img style ='width: 100%' src="{{ asset($post->cover_image) }}" alt="Cover image">
+    <img style ='width: 100%' src="{{ asset($post->cover_image) }}" alt="No image selected">
     <br><br>
     <div>
         {!! $post->body !!}
