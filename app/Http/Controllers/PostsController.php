@@ -79,27 +79,19 @@ class PostsController extends Controller
 
         // Handle File Upload
         if($request->hasFile('cover_image')){
-        //If an file was actually chosen
-
+            //User chose an image
             // Get filename with the extension
-            $filenameWithExt = $request->file('cover_image')->getClientOriginalName();
+            $fileNameWithExt = $request->file('cover_image')->getClientOriginalName();
             // Get just filename
-            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
             // Get just extension
             $extension = $request->file('cover_image')->getClientOriginalExtension();
             // Filename to store
-            $fileNameToStore= $filename.'_'.time().'.'.$extension;
+            $fileNameToStore= $fileName.'_'.time().'.'.$extension;
             // Upload Image
             $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
-		
-	    // make thumbnails
-	    // $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
-        //     $thumb = Image::make($request->file('cover_image')->getRealPath());
-        //     $thumb->resize(80, 80);
-        //     $thumb->save('storage/cover_images/'.$thumbStore);
-		
         } else {
-            //If the user never chose any file
+            //No image chosen
             $fileNameToStore = 'noimage.jpg';
         }
 
@@ -166,29 +158,20 @@ class PostsController extends Controller
             'body' => 'required'
         ]);
 
+        if($request->hasFile('cover_image')){
+            //User chose an image
+            // Get filename with the extension
+            $fileNameWithExt = $request->file('cover_image')->getClientOriginalName();
+            // Get just filename
+            $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+            // Get just extension
+            $extension = $request->file('cover_image')->getClientOriginalExtension();
+            // Filename to store
+            $fileNameToStore= $fileName.'_'.time().'.'.$extension;
+            // Upload Image
+            $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+        }
 
-         // Handle File Upload
-         if($request->hasFile('cover_image')){
-            //If an file was actually chosen
-    
-                // Get filename with the extension
-                $filenameWithExt = $request->file('cover_image')->getClientOriginalName();
-                // Get just filename
-                $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-                // Get just extension
-                $extension = $request->file('cover_image')->getClientOriginalExtension();
-                // Filename to store
-                $fileNameToStore= $filename.'_'.time().'.'.$extension;
-                // Upload Image
-                $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
-            
-            // make thumbnails
-            // $thumbStore = 'thumb.'.$filename.'_'.time().'.'.$extension;
-            //     $thumb = Image::make($request->file('cover_image')->getRealPath());
-            //     $thumb->resize(80, 80);
-            //     $thumb->save('storage/cover_images/'.$thumbStore);
-            
-            } 
 
         //Find post to be updated
         $post = Post::find($id);
@@ -216,7 +199,7 @@ class PostsController extends Controller
             return redirect('/posts')-> with('error', 'Unauthorized Page');
 
         }
-        if($post->cover_image!== 'noImage.jpg'){
+        if($post->cover_image != 'noimage.jpg'){
 
             //Delete the image
             Storage::delete('public/cover_images/'.$post->cover_image);
